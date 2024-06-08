@@ -13,5 +13,5 @@
       warn-dirty = false;
     };
   };
-  programs.zsh.enable = true;
+ # programs.zsh.enable = false;
 }

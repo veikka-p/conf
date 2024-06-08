@@ -1,3 +1,4 @@
 {pkgs, ...}: {
-  home.packages = with pkgs; [git neovim];
-  home.stateVersion = "23.11";
+  home.packages = with pkgs; [kitty];
+  home.stateVersion = "24.05";
+  }
