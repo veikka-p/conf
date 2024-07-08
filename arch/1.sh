@@ -11,10 +11,13 @@ hwclock --systohc
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=fi" > /etc/vconsole.conf
 
+# system-boot 
 grub-install --target=i386-pc "${DISK}"
 grub-mkconfig -o /boot/grub/grub.cfg
 
 sed -i 's/part_msdos/part_msdos lvm/g' /etc/default/grub
+
+# Initramfs
 mkinitcpio -P
 
 # hostname
