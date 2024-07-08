@@ -20,7 +20,7 @@ rm -rf "${DOTS}"
 
 cd "${HOME}"
 
-git clone --branch dots_arch --single-branch --bare https://github.com/veeti-k/conf "${DOTS}"
+git clone --branch dots-arch --single-branch --bare https://github.com/veikka-p/conf "${DOTS}"
 function dots {
    /usr/bin/git --git-dir="${DOTS}" --work-tree="${HOME}" $@
 }
