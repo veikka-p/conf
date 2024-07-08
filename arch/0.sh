@@ -20,7 +20,7 @@ else
 fi
 
 sfdisk "${DISK}" <<EOF
-label: dos
+label: gpt
 unit: sectors
 
 ${boot} : start=2048,  size=1G,  type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
@@ -46,7 +46,10 @@ mount /dev/vg/root /mnt
 mkswap /dev/vg/swap
 swapon /dev/vg/swap
 
-pacstrap -K /mnt base linux-lts linux-firmware linux-headers sudo vim git curl lvm2 networkmanager grub efibootmgr
+mkfs.fat -F 32 "${boot}"
+mount --mkdir "${boot}" /mnt/boot
+
+pacstrap -K /mnt base linux-lts linux-firmware linux-headers sudo vim git curl lvm2 networkmanager
 
 genfstab -U /mnt >> /mnt/etc/fstab
 

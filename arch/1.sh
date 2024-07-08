@@ -11,11 +11,28 @@ hwclock --systohc
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=fi" > /etc/vconsole.conf
 
-# system-boot 
-grub-install --target=i386-pc "${DISK}"
-grub-mkconfig -o /boot/grub/grub.cfg
+# systemd-boot
+bootctl --path=/boot install
 
-sed -i 's/part_msdos/part_msdos lvm/g' /etc/default/grub
+# systemd-boot - loader.conf
+> /boot/loader/loader.conf
+cat << EOF > /boot/loader/loader.conf
+default arch
+timeout 4
+console-mode max
+editor no
+EOF
+
+# systemd-boot - create menu entry
+> /boot/loader/entries/arch.conf
+cat << EOF > /boot/loader/entries/arch.conf
+title arch
+linux /vmlinuz-linux-lts
+initrd /initramfs-linux-lts.img
+options cryptdevice=UUID=$(blkid -s UUID -o value "${REST_PARTITION}"):cryptlvm root=/dev/vg/root quiet rw
+EOF
+
+sed -i 's/filesystems/encrypt lvm2 filesystems/g' /etc/mkinitcpio.conf
 
 # Initramfs
 mkinitcpio -P
