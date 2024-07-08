@@ -46,7 +46,7 @@ mount /dev/vg/root /mnt
 mkswap /dev/vg/swap
 swapon /dev/vg/swap
 
-pacstrap -K /mnt base linux-lts linux-firmware linux-headers sudo vim git curl lvm2 networkmanager
+pacstrap -K /mnt base linux-lts linux-firmware linux-headers sudo vim git curl lvm2 networkmanager grub efibootmgr
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
