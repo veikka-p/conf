@@ -37,7 +37,7 @@ cryptsetup open --type luks "${rest}" cryptlvm
 pvcreate /dev/mapper/cryptlvm
 vgcreate vg /dev/mapper/cryptlvm
 
-lvcreate -L 8G vg -n swap
+lvcreate -L 4G vg -n swap
 lvcreate -l 100%FREE vg -n root
 
 mkfs.ext4 /dev/vg/root
