@@ -13,14 +13,15 @@ return {
 	-- 	end,
 	-- },
 	-- {
-	-- 	"rose-pine/neovim",
-	-- 	priority = 1000,
-	-- 	name = "rose-pine",
-	-- 	config = function()
-	-- 		vim.o.background = "dark"
-	-- 		vim.cmd("colorscheme rose-pine")
-	-- 	end,
-	-- },
+	{
+		"rose-pine/neovim",
+		priority = 1000,
+		name = "rose-pine",
+		config = function()
+			vim.o.background = "dark"
+			vim.cmd("colorscheme rose-pine")
+		end,
+	},
 	-- {
 	-- 	"nyoom-engineering/oxocarbon.nvim",
 	-- 	priority = 1000,
@@ -51,10 +52,10 @@ return {
 	-- 		vim.cmd("colorscheme gruvbox")
 	-- 	end,
 	-- },
-	"folke/tokyonight.nvim",
-	priority = 1000,
-	init = function()
-		vim.cmd.colorscheme("tokyonight-night")
-		vim.cmd.hi("Comment gui=none")
-	end,
+	-- "folke/tokyonight.nvim",
+	-- priority = 1000,
+	-- init = function()
+	-- 	vim.cmd.colorscheme("tokyonight-night")
+	-- 	vim.cmd.hi("Comment gui=none")
+	-- end,
 }

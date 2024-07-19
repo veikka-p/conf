@@ -3,80 +3,79 @@ return {
 	dependencies = {
 		"williamboman/mason.nvim",
 		"williamboman/mason-lspconfig.nvim",
-		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		{ "j-hui/fidget.nvim", opts = {} },
-		{ "folke/neodev.nvim", opts = {} },
+		"folke/neodev.nvim",
 	},
 	config = function()
-		vim.api.nvim_create_autocmd("LspAttach", {
-			group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
-			callback = function(event)
-				local map = function(keys, func, desc)
-					vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
-				end
-				map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-				map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-				map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-				map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-				map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-				map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-				map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-				map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-				map("K", vim.lsp.buf.hover, "Hover Documentation")
-				map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-				local client = vim.lsp.get_client_by_id(event.data.client_id)
-				if client and client.server_capabilities.documentHighlightProvider then
-					vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-						buffer = event.buf,
-						callback = vim.lsp.buf.document_highlight,
-					})
-
-					vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-						buffer = event.buf,
-						callback = vim.lsp.buf.clear_references,
-					})
+		local on_attach = function(_, bufnr)
+			local nmap = function(keys, func, desc)
+				if desc then
+					desc = "LSP: " .. desc
 				end
 
-				if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-					map("<leader>th", function()
-						vim.lsp.inlay_hint.enable(0, not vim.lsp.inlay_hint.is_enabled())
-					end, "[T]oggle Inlay [H]ints")
-				end
-			end,
-		})
+				vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
+			end
 
-		local capabilities = vim.lsp.protocol.make_client_capabilities()
-		capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+			nmap("<leader>r", vim.lsp.buf.rename, "[R]e[n]ame")
+			nmap("<leader>c", vim.lsp.buf.code_action, "[C]ode [A]ction")
 
-		local servers = {
-			clangd = {},
-			tsserver = {},
-			lua_ls = {
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
-						},
-					},
-				},
-			},
-		}
+			nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+			nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+			nmap("gi", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+			nmap("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
+			nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+			nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+
+			nmap("K", vim.lsp.buf.hover, "Hover Documentation")
+			nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
+		end
 
 		require("mason").setup()
-		local ensure_installed = vim.tbl_keys(servers or {})
-		vim.list_extend(ensure_installed, {
-			"stylua", -- Used to format Lua code
-		})
-		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+		require("mason-lspconfig").setup()
 
-		require("mason-lspconfig").setup({
-			handlers = {
-				function(server_name)
-					local server = servers[server_name] or {}
-					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					require("lspconfig")[server_name].setup(server)
-				end,
+		local servers = {
+			html = { filetypes = { "html", "twig", "hbs" } },
+			lua_ls = {
+				Lua = {
+					workspace = { checkThirdParty = false },
+					telemetry = { enable = false },
+					diagnostics = { disable = { "missing-fields" } },
+				},
 			},
+			cssls = {},
+			tsserver = {},
+			prismals = {},
+			emmet_language_server = {},
+			eslint = {},
+			tailwindcss = {},
+			astro = {},
+			templ = {},
+		}
+
+		require("neodev").setup()
+
+		local capabilities = vim.lsp.protocol.make_client_capabilities()
+		capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+		local mason_lspconfig = require("mason-lspconfig")
+
+		mason_lspconfig.setup({
+			ensure_installed = vim.tbl_keys(servers),
+		})
+		require("lspconfig").rust_analyzer.setup({
+			capabilities = capabilities,
+			on_attach = on_attach,
+		})
+
+		mason_lspconfig.setup_handlers({
+			function(server_name)
+				require("lspconfig")[server_name].setup({
+					capabilities = capabilities,
+					on_attach = on_attach,
+					settings = servers[server_name],
+					filetypes = (servers[server_name] or {}).filetypes,
+				})
+			end,
 		})
 	end,
 }
