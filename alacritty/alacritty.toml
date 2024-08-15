@@ -1,9 +1,9 @@
 [font]
-# normal = { family = "JetBrainsMono Nerd Font" }
+normal = { family = "JetBrainsMono Nerd Font" }
 size = 16
 
 [window]
-opacity = 0.9
+opacity = 0.99
 
 decorations = "Full"
 decorations_theme_variant = "Dark"
