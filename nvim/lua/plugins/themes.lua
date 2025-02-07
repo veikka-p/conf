@@ -12,6 +12,15 @@ return {
 	-- 		vim.cmd("colorscheme catppuccin")
 	-- 	end,
 	-- },
+	--	{
+	--	"Tsuzat/NeoSolarized.nvim",
+	--	lazy = false,
+	--	priority = 1000,
+	--	config = function()
+	--		vim.cmd([[ colorscheme NeoSolarized ]])
+	--	end,
+	--},
+
 	{
 		"rose-pine/neovim",
 		priority = 1000,
