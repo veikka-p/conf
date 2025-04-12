@@ -9,6 +9,17 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+vim.keymap.set("n", "M", vim.diagnostic.goto_prev)
+vim.keymap.set("n", "m", vim.diagnostic.goto_next)
+
+vim.keymap.set(
+	"n",
+	"<leader>i",
+	":let @/='\\<'.expand('<cword>').'\\>'<CR>:set hlsearch<CR>",
+	{ noremap = true, silent = true }
+)
+vim.keymap.set("n", "xx", ":nohlsearch<CR>", { noremap = true, silent = true })
+
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
 -- highlight
 local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
