@@ -43,7 +43,7 @@ return {
 				},
 			},
 			cssls = {},
-			tsserver = {},
+			-- tsserver = {},
 			prismals = {},
 			emmet_language_server = {},
 			eslint = {},
