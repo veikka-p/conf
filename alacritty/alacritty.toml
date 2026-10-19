@@ -1,6 +1,9 @@
 [font]
-normal = { family = "JetBrainsMono Nerd Font" }
-size = 16
+# normal = { family = "JetBrainsMono Nerd Font" }
+# size = 16
+normal = { family = "Fira Code" }
+style = "Regular"
+size = 14.0
 
 [window]
 opacity = 0.99

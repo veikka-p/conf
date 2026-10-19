@@ -1,28 +1,36 @@
 return {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    opts = {
-        ensure_installed = {
-            "c",
-            "cpp",
-            "lua",
-            "python",
-            "tsx",
-            "javascript",
-            "typescript",
-            "vimdoc",
-            "vim",
-            "bash",
-            "prisma",
-            "astro",
-            "c_sharp",
-            "templ",
-        },
-        auto_install = true,
-    },
-    config = function(_, opts)
-        require("nvim-treesitter.install").prefer_git = true
-        ---@diagnostic disable-next-line: missing-fields
-        require("nvim-treesitter.configs").setup(opts)
-    end,
+	'nvim-treesitter/nvim-treesitter',
+	dependencies = {
+		'nvim-treesitter/nvim-treesitter-textobjects',
+	},
+	build = ':TSUpdate',
+	config = function()
+		vim.defer_fn(function()
+			require('nvim-treesitter.configs').setup {
+				ensure_installed = {
+					'tsx',
+					'javascript',
+					'typescript',
+					'go',
+					'rust',
+					'bash',
+					'lua',
+				},
+
+				auto_install = false,
+
+				highlight = { enable = true },
+				indent = { enable = true },
+				incremental_selection = {
+					enable = true,
+					keymaps = {
+						init_selection = '<c-space>',
+						node_incremental = '<c-space>',
+						scope_incremental = '<c-s>',
+						node_decremental = '<M-space>',
+					},
+				},
+			}
+		end, 0)
+	end
 }

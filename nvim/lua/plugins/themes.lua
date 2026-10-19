@@ -1,12 +1,42 @@
 return {
+	-- {
+	-- 	"vague2k/vague.nvim",
+	-- 	config = function()
+	-- 		require("vague").setup({})
+	-- 		vim.cmd("colorscheme vague")
+	-- 		vim.cmd(":hi statusline guibg=NONE")
+	-- 	end,
+	-- },
 	{
-		"Tsuzat/NeoSolarized.nvim",
-		lazy = false,
+		"rebelot/kanagawa.nvim",
 		priority = 1000,
 		config = function()
-			vim.cmd([[ colorscheme NeoSolarized ]])
+			require("kanagawa").setup({
+				-- you can customize the theme here
+				compile = false,
+				undercurl = true,
+				commentStyle = { italic = true },
+				functionStyle = {},
+				keywordStyle = { italic = true },
+				statementStyle = { bold = true },
+				typeStyle = {},
+				transparent = false,
+				dimInactive = false,
+				terminalColors = true,
+			})
+
+			vim.o.background = "dark"
+			vim.cmd("colorscheme kanagawa")
 		end,
 	},
+	-- {
+	-- 	"Tsuzat/NeoSolarized.nvim",
+	-- 	lazy = false,
+	-- 	priority = 1000,
+	-- 	config = function()
+	-- 		vim.cmd([[ colorscheme NeoSolarized ]])
+	-- 	end,
+	-- },
 	-- {
 	-- 	"lalitmee/cobalt2.nvim",
 	-- 	name = "cobalt2",

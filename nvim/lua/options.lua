@@ -6,9 +6,11 @@ vim.opt.guicursor = ""
 vim.o.hlsearch = false
 
 vim.wo.number = true
-vim.o.relativenumber = true
-vim.wo.signcolumn = "yes"
+-- vim.o.relativenumber = true
+vim.wo.signcolumn = "no"
 vim.o.wrap = false
+vim.opt.laststatus = 0
+vim.opt.scrolloff = 8
 
 vim.o.clipboard = "unnamedplus"
 
@@ -41,3 +43,15 @@ vim.filetype.add({
 })
 
 vim.g.omni_sql_no_default_maps = 1
+
+vim.opt.list = true
+vim.opt.listchars = {
+	tab = "⇥ ",
+	trail = "·",
+	space = "·",
+}
+
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set("n", "n", "nzzzv")
+vim.keymap.set("n", "N", "Nzzzv")

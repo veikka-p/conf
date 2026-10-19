@@ -1,81 +1,146 @@
 return {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-        "williamboman/mason.nvim",
-        "williamboman/mason-lspconfig.nvim",
-        { "j-hui/fidget.nvim", opts = {} },
-        "folke/neodev.nvim",
-    },
-    config = function()
-        local on_attach = function(_, bufnr)
-            local nmap = function(keys, func, desc)
-                if desc then
-                    desc = "LSP: " .. desc
-                end
+	{
+		-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
+		-- used for completion, annotations and signatures of Neovim apis
+		"folke/lazydev.nvim",
+		ft = "lua",
+		opts = {
+			library = {
+				-- Load luvit types when the `vim.uv` word is found
+				{ path = "luvit-meta/library", words = { "vim%.uv" } },
+			},
+		},
+	},
+	{ "Bilal2453/luvit-meta", lazy = true },
 
-                vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
-            end
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			{
+				"j-hui/fidget.nvim",
+				opts = {},
+			},
+		},
 
-            nmap("<leader>r", vim.lsp.buf.rename, "[R]e[n]ame")
-            nmap("<leader>c", vim.lsp.buf.code_action, "[C]ode [A]ction")
+		config = function()
+			vim.api.nvim_create_autocmd("LspAttach", {
+				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+				callback = function(event)
+					local bufnr = event.buf
 
-            nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-            nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-            nmap("gi", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-            nmap("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-            nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-            nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+					local builtin = require("telescope.builtin")
+					vim.keymap.set(
+						"n",
+						"gd",
+						builtin.lsp_definitions,
+						{ buffer = bufnr, desc = "[G]o to [d]efinition" }
+					)
+					vim.keymap.set("n", "gr", builtin.lsp_references, { buffer = bufnr, desc = "[G]o to [r]eferences" })
+					vim.keymap.set(
+						"n",
+						"gi",
+						builtin.lsp_implementations,
+						{ buffer = bufnr, desc = "[G]o to [i]mplementations" }
+					)
 
-            nmap("K", vim.lsp.buf.hover, "Hover Documentation")
-            nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
-        end
+					vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
+					vim.keymap.set(
+						"n",
+						"<C-k>",
+						vim.lsp.buf.signature_help,
+						{ buffer = bufnr, desc = "Signature Help" }
+					)
 
-        require("mason").setup()
-        require("mason-lspconfig").setup()
+					vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, { buffer = bufnr, desc = "[R]ename" })
+					vim.keymap.set(
+						"n",
+						"<leader>c",
+						vim.lsp.buf.code_action,
+						{ buffer = bufnr, desc = "[C]ode action" }
+					)
 
-        local servers = {
-            html = { filetypes = { "html", "twig", "hbs" } },
-            lua_ls = {
-                Lua = {
-                    workspace = { checkThirdParty = false },
-                    telemetry = { enable = false },
-                    diagnostics = { disable = { "missing-fields" } },
-                },
-            },
-            cssls = {},
-            tsserver = {},
-            prismals = {},
-            emmet_language_server = {},
-            eslint = {},
-            tailwindcss = {},
-            astro = {},
-            templ = {},
-        }
+					-- highlight references to symbol under cursor
+					local client = vim.lsp.get_client_by_id(event.data.client_id)
+					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+						local highlight_augroup =
+							vim.api.nvim_create_augroup("lsp-highlight-on-rest", { clear = false })
+						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+							buffer = event.buf,
+							group = highlight_augroup,
+							callback = vim.lsp.buf.document_highlight,
+						})
 
-        require("neodev").setup()
+						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+							buffer = event.buf,
+							group = highlight_augroup,
+							callback = vim.lsp.buf.clear_references,
+						})
 
-        local capabilities = vim.lsp.protocol.make_client_capabilities()
-        capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+						vim.api.nvim_create_autocmd("LspDetach", {
+							group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+							callback = function(event2)
+								vim.lsp.buf.clear_references()
+								vim.api.nvim_clear_autocmds({ group = "lsp-highlight-on-rest", buffer = event2.buf })
+							end,
+						})
+					end
+				end,
+			})
 
-        local mason_lspconfig = require("mason-lspconfig")
+			require("mason").setup()
+			require("mason-lspconfig").setup({
+				ensure_installed = {
+					"ts_ls",
+				},
+			})
 
-        mason_lspconfig.setup({
-            ensure_installed = vim.tbl_keys(servers),
-        })
-        require("lspconfig").rust_analyzer.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-        })
+			local servers = {
+				ts_ls = {},
+				cssls = {},
+				emmet_language_server = {},
+				-- eslint = {},
+				astro = {},
+				unocss = {},
+				tailwindcss = {},
+				-- biome                 = {},
 
-        mason_lspconfig.setup_handlers({
-            function(server_name)
-                require("lspconfig")[server_name].setup({
-                    capabilities = capabilities,
-                    on_attach = on_attach,
-                    settings = servers[server_name],
-                    filetypes = (servers[server_name] or {}).filetypes,
-                })
-            end,
-        })
-    end,
+				-- rust_analyzer         = {},
+				-- gopls                 = {},
+
+				lua_ls = {
+					settings = {
+						Lua = {
+							workspace = { checkThirdParty = false },
+							telemetry = { enable = false },
+							diagnostics = { disable = { "missing-fields" } },
+						},
+					},
+				},
+			}
+
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+
+			require("mason-lspconfig").setup({
+				ensure_installed = vim.tbl_keys(servers),
+				handlers = {
+					function(server_name)
+						if server_name == "eslint" then
+							return
+						end
+						local server = servers[server_name] or {}
+
+						require("lspconfig")[server_name].setup({
+							cmd = server.cmd,
+							settings = server.settings,
+							filetypes = server.filetypes,
+							capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {}),
+						})
+					end,
+				},
+			})
+		end,
+	},
 }

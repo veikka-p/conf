@@ -1,0 +1,12 @@
+{
+  "PROJECT_PREFERENCES": {
+    "client": {
+      "lastBrowser": {
+        "name": "electron",
+        "channel": "stable"
+      },
+      "testingType": "e2e"
+    }
+  },
+  "PROJECTS": []
+}
